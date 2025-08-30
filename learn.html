@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SkillForge — Learn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .loader { border: 4px solid #374151; border-top: 4px solid #6366f1; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* custom scrollbar for roadmap */
+    #roadmap-panel::-webkit-scrollbar { width: 10px; }
+    #roadmap-panel::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+  </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+
+  <!-- TOP BAR -->
+  <header class="p-4 flex items-center gap-4 border-b border-gray-800">
+    <div class="flex items-center gap-3">
+      <!-- small logo -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400">
+        <path d="M19.43 12.76a2.5 2.5 0 1 1-3.61 3.61l-4.12 4.12a2.5 2.5 0 1 1-3.54-3.54l4.12-4.12a2.5 2.5 0 1 1 3.61-3.61l4.12-4.12a2.5 2.5 0 1 1 3.54 3.54l-4.12 4.12z"/>
+      </svg>
+      <div>
+        <div class="text-lg font-semibold">SkillForge</div>
+        <div id="topic-name" class="text-xs text-gray-400">Loading topic…</div>
+      </div>
+    </div>
+
+    <div class="ml-auto flex items-center gap-3">
+      <button id="back-home" class="text-sm text-gray-400 hover:text-white">← Back</button>
+      <button id="reset-progress" class="text-sm text-gray-400 hover:text-white">Reset</button>
+    </div>
+  </header>
+
+  <!-- MAIN: left 40% (roadmap) | right 60% (canvas) -->
+  <main class="flex-1 flex overflow-hidden">
+    <!-- ROADMAP - left -->
+    <aside id="roadmap-panel" class="w-2/5 min-w-[380px] bg-gray-900 p-6 border-r border-gray-800 overflow-y-auto">
+      <!-- Roadmap will be rendered here -->
+    </aside>
+
+    <!-- CANVAS - right -->
+    <section id="canvas-panel" class="flex-1 p-8 overflow-y-auto">
+      <!-- Assessment / Explanation / Project area -->
+    </section>
+  </main>
+
+<script>
+/* =========================
+   DATA: Detailed roadmaps
+   ========================= */
+const roadmaps = {
+  "Machine Learning": [
+    {
+      title: "Foundations & Math",
+      subTopics: [
+        { id: "f-1", title: "Python essentials (for ML)", explanation: "Basic Python constructs: variables, lists, dicts, functions. Practice with reading CSVs and simple numeric ops using NumPy." },
+        { id: "f-2", title: "NumPy & Pandas basics", explanation: "NumPy arrays and Pandas DataFrames: indexing, slicing, aggregation, groupby. These are essential for data handling." },
+        { id: "f-3", title: "Linear Algebra primer", explanation: "Vectors, matrices, dot product, matrix multiplication, eigenvalues/eigenvectors (intuition). Many ML models use linear algebra under the hood." },
+        { id: "f-4", title: "Probability & Statistics basics", explanation: "Mean, variance, distributions, Bayes theorem, conditional probability—useful for understanding model outputs and assumptions." },
+        { id: "f-5", title: "Data cleaning & EDA", explanation: "Handle missing values, outliers, feature types, visualize distributions, correlations and initial preprocessing steps." },
+        { id: "f-6", title: "Train / Validation / Test split", explanation: "Why we split data: to evaluate generalization and avoid overfitting. Use cross-validation to get more robust estimates." },
+      ],
+      project: {
+        title: "Data Exploration Mini Project",
+        description: "Load a CSV dataset (e.g., housing or iris). Clean it, explore distributions, and write a short report with 3 key observations.",
+        hints: ["Start with `pandas.read_csv()`", "Show histograms of numeric columns", "Compute correlations and note interesting pairs"]
+      }
+    },
+
+    {
+      title: "Supervised Learning",
+      subTopics: [
+        { id: "s-1", title: "Linear Regression (OLS)", explanation: "Predict numeric values using features. Understand loss (MSE), fitting, and interpretation of coefficients." },
+        { id: "s-2", title: "Regularization (Ridge, Lasso)", explanation: "Techniques to avoid overfitting by penalizing large weights. Ridge (L2), Lasso (L1) basics and when to use each." },
+        { id: "s-3", title: "Logistic Regression (classification)", explanation: "Model probabilities for binary outcomes using the logistic function. Decision boundary and probability thresholds." },
+        { id: "s-4", title: "Decision Trees & Random Forests", explanation: "Tree-based models split data by features. Random Forests aggregate many trees to reduce variance." },
+        { id: "s-5", title: "Support Vector Machines (SVM)", explanation: "SVM finds a margin-maximizing boundary; kernel trick for non-linear separation." },
+        { id: "s-6", title: "Evaluation Metrics (accuracy, precision, recall, F1, ROC-AUC)", explanation: "Which metric to use depends on problem balance and cost of false positives/negatives." },
+      ],
+      project: {
+        title: "House Price Predictor (Supervised)",
+        description: "Build and evaluate a regression model for house prices using the cleaned dataset. Use train/test and report MAE/MSE.",
+        hints: ["Start with linear regression", "Try feature transformations", "Compare baseline vs improved models"]
+      }
+    },
+
+    {
+      title: "Model Tuning & Pipelines",
+      subTopics: [
+        { id: "m-1", title: "Feature engineering", explanation: "Create meaningful features: encoding categoricals, scaling numerics, creating interactions and derived variables." },
+        { id: "m-2", title: "Hyperparameter tuning (GridSearch, RandomSearch)", explanation: "Search hyperparameter space using cross-validation to pick the best model settings." },
+        { id: "m-3", title: "Cross-validation strategies", explanation: "K-fold, stratified, time-series splits — choose the right one for your data." },
+        { id: "m-4", title: "Pipelines & reproducibility", explanation: "Use pipelines to chain preprocessing and modeling steps. Ensures consistent transforms at train and test time." },
+      ],
+      project: {
+        title: "Model Pipeline Project",
+        description: "Create a reusable scikit-learn pipeline that cleans data, transforms features, and fits a tuned model.",
+        hints: ["Use `Pipeline` and `ColumnTransformer`", "Parameterize preprocessing steps for GridSearch"]
+      }
+    },
+
+    {
+      title: "Unsupervised Learning & Dimensionality",
+      subTopics: [
+        { id: "u-1", title: "K-Means Clustering", explanation: "Partition data into k clusters by distance to cluster centers. Use silhouette score to evaluate." },
+        { id: "u-2", title: "Hierarchical Clustering", explanation: "Agglomerative clustering and dendrograms to visualize nested groupings." },
+        { id: "u-3", title: "PCA (Dimensionality Reduction)", explanation: "Reduce dimensionality by projecting onto principal components; use for visualization & noise reduction." },
+      ],
+      project: {
+        title: "Customer Segmentation",
+        description: "Cluster customer data and write insights about distinct groups. Visualize clusters in 2D using PCA.",
+        hints: ["Scale your features", "Try several k values and compare metrics"]
+      }
+    },
+
+    {
+      title: "Deep Learning Basics",
+      subTopics: [
+        { id: "d-1", title: "Neural Network Fundamentals", explanation: "Layers, neurons, activation functions, forward pass and backpropagation intuition." },
+        { id: "d-2", title: "Training: Optimizers & Losses", explanation: "SGD, Adam, learning rate, batching, and common loss functions (MSE, cross-entropy)." },
+        { id: "d-3", title: "CNNs (convolutional networks)", explanation: "Conv layers, pooling, feature maps — widely used for images." },
+        { id: "d-4", title: "RNNs & Transformers (overview)", explanation: "Sequence models; transformers use attention and are state-of-the-art for NLP." },
+      ],
+      project: {
+        title: "Image Classifier (Tiny)",
+        description: "Train a small CNN on a subset of an image dataset and report accuracy. Keep model small to run on CPU if needed.",
+        hints: ["Use Keras or PyTorch", "Start with a tiny architecture and increase complexity"]
+      }
+    },
+
+    {
+      title: "Deployment & MLOps",
+      subTopics: [
+        { id: "o-1", title: "Model serving basics", explanation: "Wrap model inference into an API (Flask/FastAPI) and serve predictions." },
+        { id: "o-2", title: "Monitoring & evaluation in production", explanation: "Track model drift, performance, and set up alerts." },
+        { id: "o-3", title: "Simple containerization (Docker)", explanation: "Package your model and service in a container for reproducible deployment." },
+      ],
+      project: {
+        title: "Deploy a Model",
+        description: "Deploy a small model behind an API and make sample requests. Document how to run it locally or on a cloud instance.",
+        hints: ["Create a simple /predict endpoint", "Include a README with run instructions"]
+      }
+    }
+  ],
+
+  "Web Development": [
+    { title: "HTML & CSS Foundations", subTopics: [
+        { id: "w-1", title: "HTML structure & semantics", explanation: "Tags, attributes, semantic markup, accessibility basics." },
+        { id: "w-2", title: "CSS layout basics", explanation: "Box model, flexbox, grid, responsive design fundamentals." },
+        { id: "w-3", title: "Accessibility & best practices", explanation: "Use semantic tags and ARIA attributes; ensure keyboard navigation." },
+      ],
+      project: { title: "Personal Portfolio", description: "Create a responsive portfolio site with your projects.", hints: ["Mobile-first design", "Use flexbox/grid"] }
+  ],
+
+  "Data Structures": [
+    { title: "Basic DS & Complexity", subTopics: [
+        { id: "ds-1", title: "Arrays & Strings", explanation: "Contiguous memory, basic operations, common patterns." },
+        { id: "ds-2", title: "Linked Lists", explanation: "Nodes, pointers, insertion/deletion algorithms." },
+        { id: "ds-3", title: "Stacks & Queues", explanation: "LIFO / FIFO structures and common uses." },
+      ],
+      project: { title: "DS Practice Project", description: "Implement a small library of DS and test edge cases.", hints: ["Write unit tests", "Consider time complexity"] }
+  ]
+};
+
+/* =========================
+   UTIL / STATE
+   ========================= */
+const stateKey = "skillforge_state_v1";
+let state = {
+  topic: null,           // string topic name
+  roadmap: null,         // loaded roadmap array
+  currentLevel: 0,
+  currentSub: 0,
+  completed: {},         // completed subtopic ids set: { "f-1": true }
+  projectCompletedLevels: {} // { 0: true }
+};
+
+// persistence helpers
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(stateKey) || "null");
+    if (s) state = s;
+  } catch(e) { console.warn("loadState failed", e); }
+}
+function saveState() {
+  try {
+    localStorage.setItem(stateKey, JSON.stringify(state));
+  } catch(e) { console.warn("saveState failed", e); }
+}
+
+/* =========================
+   INITIALIZATION
+   ========================= */
+const roadmapPanel = document.getElementById("roadmap-panel");
+const canvasPanel = document.getElementById("canvas-panel");
+const topicNameEl = document.getElementById("topic-name");
+const backHomeBtn = document.getElementById("back-home");
+const resetProgressBtn = document.getElementById("reset-progress");
+
+// on load
+(function init() {
+  loadState();
+  // read topic from localStorage (set by index.html)
+  const topic = localStorage.getItem("skillTopic") || state.topic || "";
+  if (!topic) {
+    // no topic — show friendly message and back
+    canvasPanel.innerHTML = `<div class="max-w-xl mx-auto text-center py-24">
+      <h2 class="text-2xl font-semibold mb-4">No topic found</h2>
+      <p class="text-gray-400 mb-6">Please go back and type a skill to learn (e.g., "Machine Learning").</p>
+      <div><a href="index.html" class="px-4 py-2 bg-indigo-600 rounded-lg">Back to Home</a></div>
+    </div>`;
+    topicNameEl.innerText = "No topic";
+    return;
+  }
+
+  // assign topic
+  state.topic = topic;
+  localStorage.setItem("skillTopic", topic);
+  topicNameEl.innerText = topic;
+
+  // load roadmap if available
+  if (roadmaps[topic]) {
+    state.roadmap = roadmaps[topic];
+    saveState();
+    renderRoadmap();
+    startAssessmentIfNeeded();
+  } else {
+    // fallback: show option to generate roadmap (AI) or use a generic placeholder
+    canvasPanel.innerHTML = `<div class="max-w-2xl mx-auto py-12">
+      <h2 class="text-2xl font-bold mb-4">No built-in roadmap for "${topic}"</h2>
+      <p class="text-gray-400 mb-6">You can either:</p>
+      <div class="flex gap-3">
+        <button id="generate-ai" class="px-4 py-2 bg-indigo-600 rounded-lg">Generate with AI</button>
+        <a href="index.html" class="px-4 py-2 bg-gray-800 rounded-lg">Choose another topic</a>
+      </div>
+      <p class="text-xs text-gray-500 mt-6">Tip: built-in topics include Machine Learning, Web Development, Data Structures.</p>
+    </div>`;
+    document.getElementById("generate-ai").addEventListener("click", () => {
+      alert("AI roadmap generation not yet enabled in this client demo. Use a built-in topic for full flow.");
+    });
+  }
+})();
+
+/* =========================
+   RENDER ROADMAP (LEFT)
+   ========================= */
+function renderRoadmap() {
+  const rm = state.roadmap || [];
+  roadmapPanel.innerHTML = `
+    <h2 class="text-2xl font-bold mb-4">Roadmap</h2>
+    <div class="text-sm text-gray-400 mb-6">Topic: <span class="text-gray-200 font-medium">${state.topic}</span></div>
+    <div class="space-y-6 pb-8">
+      ${rm.map((level, li) => `
+        <div class="group">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 flex items-center justify-center rounded-full ${li === state.currentLevel ? 'bg-indigo-500 text-black' : (li < state.currentLevel ? 'bg-green-600' : 'bg-gray-800 text-gray-400')}">
+                ${li+1}
+              </div>
+              <div>
+                <div class="${li === state.currentLevel ? 'text-indigo-300 font-semibold' : 'text-gray-200 font-medium'}">${level.title}</div>
+                <div class="text-xs text-gray-500">${level.subTopics.length} subtopics</div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-400">${state.projectCompletedLevels[li] ? 'Project ✓' : ''}</div>
+          </div>
+
+          <ul class="mt-3 pl-12 space-y-2">
+            ${level.subTopics.map((s, si) => {
+              const unlocked = li < state.currentLevel || li === state.currentLevel;
+              const completed = !!state.completed[s.id];
+              const active = (li === state.currentLevel && si === state.currentSub);
+              const lockClass = unlocked ? '' : 'opacity-40 cursor-not-allowed';
+              const itemClass = active ? 'ring-2 ring-indigo-500 bg-indigo-600/10 text-indigo-200' : (completed ? 'bg-gray-800 text-gray-300' : 'text-gray-300 hover:bg-gray-800/50');
+              return `<li>
+                <button data-level="${li}" data-sub="${si}" class="w-full text-left rounded-md px-3 py-2 ${lockClass} ${itemClass} ${unlocked ? 'roadmap-btn' : ''}">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="w-2 h-2 rounded-full ${completed ? 'bg-green-400' : 'bg-indigo-400/50'}"></span>
+                      <span>${s.title}</span>
+                    </div>
+                    ${completed ? '<span class="text-xs text-green-400">done</span>' : ''}
+                  </div>
+                </button>
+              </li>`;
+            }).join('')}
+          </ul>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // add click listeners for unlocked subtopics
+  document.querySelectorAll(".roadmap-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const lv = parseInt(btn.dataset.level, 10);
+      const sb = parseInt(btn.dataset.sub, 10);
+      // only allow clicking for unlocked levels (<= currentLevel)
+      if (lv > state.currentLevel) {
+        showLockedToast("This level is locked. Complete earlier levels or finish the project to unlock.");
+        return;
+      }
+      state.currentLevel = lv;
+      state.currentSub = sb;
+      saveState();
+      renderRoadmap();
+      renderCanvas();
+    });
+  });
+}
+
+/* =========================
+   CANVAS RENDER & FLOW (RIGHT)
+   ========================= */
+function renderCanvas() {
+  // If no roadmap, show fallback
+  if (!state.roadmap) {
+    canvasPanel.innerHTML = `<div class="text-gray-400">No roadmap loaded.</div>`;
+    return;
+  }
+
+  // If the user hasn't taken assessment for this session, start assessment first.
+  if (!state.assessed) {
+    renderAssessment();
+    return;
+  }
+
+  // otherwise show current subtopic explanation
+  const level = state.roadmap[state.currentLevel];
+  const sub = level.subTopics[state.currentSub];
+
+  // build explanation UI
+  canvasPanel.innerHTML = `
+    <div class="max-w-3xl">
+      <div class="flex items-start gap-6">
+        <div class="flex-1">
+          <h2 class="text-3xl font-bold mb-3">${sub.title}</h2>
+          <div id="explanation" class="prose prose-invert text-gray-300 mb-6">${escapeHtml(sub.explanation)}</div>
+
+          <div class="flex gap-3">
+            <button id="mark-complete" class="px-4 py-2 bg-green-600 rounded-lg font-semibold">Mark Subtopic Complete</button>
+            <button id="show-hints" class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700">Show Hints</button>
+            <button id="explain-more" class="px-4 py-2 bg-indigo-600 rounded-lg">Explain Deeper</button>
+          </div>
+
+          <div id="hints-area" class="mt-4 hidden text-gray-300"></div>
+        </div>
+
+        <div class="w-[320px]">
+          <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 sticky top-6">
+            <h3 class="font-semibold mb-3">Level progress</h3>
+            <div id="level-progress" class="text-sm text-gray-400"></div>
+            <div class="mt-4">
+              <button id="prev-btn" class="w-full py-2 mb-2 bg-gray-700 rounded-lg disabled:opacity-60">Previous</button>
+              <button id="next-btn" class="w-full py-2 bg-indigo-600 rounded-lg">Next</button>
+            </div>
+            <div class="mt-4 text-xs text-gray-500">When all subtopics are completed, you can start the level project.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="project-area" class="mt-8"></div>
+    </div>
+  `;
+
+  document.getElementById("mark-complete").addEventListener("click", () => {
+    state.completed[sub.id] = true;
+    saveState();
+    renderRoadmap();
+    renderCanvas();
+  });
+
+  document.getElementById("show-hints").addEventListener("click", () => {
+    const area = document.getElementById("hints-area");
+    area.classList.toggle("hidden");
+    area.innerHTML = `<div class="bg-gray-800 p-3 rounded-lg text-sm">No predefined hints for this subtopic. Try "Explain Deeper" or mark complete when done.</div>`;
+  });
+
+  document.getElementById("explain-more").addEventListener("click", async () => {
+    // In a production app, call AI here. For demo, expand explanation a bit.
+    const ex = document.getElementById("explanation");
+    ex.innerHTML = `${escapeHtml(sub.explanation)}<p class="mt-3 text-gray-300">Further explanation: try small code examples, visualizations, or step-by-step pseudo-code to practice.</p>`;
+  });
+
+  // prev / next handlers
+  document.getElementById("prev-btn").addEventListener("click", () => {
+    goPrev();
+  });
+  document.getElementById("next-btn").addEventListener("click", () => {
+    goNext();
+  });
+
+  // level progress panel
+  const completedCount = level.subTopics.filter(s => state.completed[s.id]).length;
+  document.getElementById("level-progress").innerHTML = `${completedCount} / ${level.subTopics.length} subtopics completed`;
+
+  // if level fully completed but project not done, show project section
+  if (completedCount >= level.subTopics.length && !state.projectCompletedLevels[state.currentLevel]) {
+    showProject(level);
+  } else if (state.projectCompletedLevels[state.currentLevel]) {
+    // level fully done
+    document.getElementById("project-area").innerHTML = `<div class="bg-gray-900 p-4 rounded-lg border border-gray-800 text-green-400">Level project completed. You can move to next level.</div>`;
+  } else {
+    document.getElementById("project-area").innerHTML = ``;
+  }
+}
+
+/* =========================
+   ASSESSMENT FLOW
+   Ask one question at a time to assess the user's level.
+   For demo: simple deterministic mapping
+   ========================= */
+const assessments = {
+  "Machine Learning": [
+    { q: "Can you write Python code and use NumPy/Pandas to load and inspect data?", level: 0 },
+    { q: "Do you understand train/test split and why we need it?", level: 0 },
+    { q: "Can you implement and interpret linear regression?", level: 1 },
+    { q: "Can you train and evaluate decision trees / random forests?", level: 1 },
+    { q: "Do you know cross-validation and hyperparameter tuning?", level: 2 },
+    { q: "Can you implement a small neural network or use Keras/PyTorch?", level: 4 },
+  ],
+  "Web Development": [
+    { q: "Can you build an HTML page and style with CSS?", level: 0 },
+    { q: "Do you understand JavaScript DOM manipulation?", level: 1 },
+    { q: "Can you build a small SPA with React/Next.js?", level: 2 },
+  ],
+  "Data Structures": [
+    { q: "Can you implement arrays and string manipulations?", level: 0 },
+    { q: "Do you understand linked lists and pointers?", level: 1 },
+    { q: "Can you implement trees and graphs traversal algorithms?", level: 2 },
+  ]
+};
+
+function renderAssessment() {
+  const topic = state.topic;
+  const list = assessments[topic];
+  if (!list || list.length === 0) {
+    // no assessment data: mark assessed and proceed
+    state.assessed = true;
+    saveState();
+    renderCanvas();
+    return;
+  }
+
+  // initialize assessment tracking
+  state._assessmentIndex = state._assessmentIndex ?? 0;
+  state._assessmentAnswers = state._assessmentAnswers ?? [];
+
+  const ai = state._assessmentIndex;
+  const item = list[ai];
+
+  canvasPanel.innerHTML = `
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold mb-3">Quick Assessment</h2>
+      <p class="text-gray-400 mb-6">One question at a time — helps us find your current level to start at the right point.</p>
+
+      <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+        <div class="text-lg mb-4">${item.q}</div>
+        <div class="flex gap-3">
+          <button id="ans-yes" class="px-4 py-2 bg-indigo-600 rounded-lg">Yes — confident</button>
+          <button id="ans-some" class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700">Somewhat</button>
+          <button id="ans-no" class="px-4 py-2 bg-gray-700 rounded-lg">No</button>
+        </div>
+        <div class="mt-4 text-sm text-gray-500">Progress: ${ai+1} / ${list.length}</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("ans-yes").addEventListener("click", () => recordAnswer(2));
+  document.getElementById("ans-some").addEventListener("click", () => recordAnswer(1));
+  document.getElementById("ans-no").addEventListener("click", () => recordAnswer(0));
+}
+
+function recordAnswer(score) {
+  const topic = state.topic;
+  const list = assessments[topic];
+  state._assessmentAnswers.push(score);
+  state._assessmentIndex++;
+  if (state._assessmentIndex >= list.length) {
+    // compute assessed level: choose highest-level question where user had >=1 (some) OR majority scores
+    // For simplicity: find the highest 'level' for which user answered at least "somewhat" on one question mapping to that level.
+    let assessedLevel = 0;
+    for (let i = list.length - 1; i >= 0; i--) {
+      if (state._assessmentAnswers[i] >= 1) {
+        assessedLevel = list[i].level;
+        break;
+      }
+    }
+    // clamp assessedLevel to max available levels - 1
+    const maxLevelIndex = (state.roadmap ? state.roadmap.length - 1 : 0);
+    state.currentLevel = Math.min(assessedLevel, maxLevelIndex);
+    state.currentSub = 0;
+    state.assessed = true;
+    // cleanup temp assessment meta
+    delete state._assessmentIndex;
+    delete state._assessmentAnswers;
+    saveState();
+    renderRoadmap();
+    renderCanvas();
+    // show a small toast about assessed level
+    showToast(`Assessment complete — starting at level ${state.currentLevel + 1}`);
+  } else {
+    saveState();
+    renderAssessment(); // next question
+  }
+}
+
+/* =========================
+   NAVIGATION HELPERS
+   ========================= */
+function goNext() {
+  const level = state.roadmap[state.currentLevel];
+  if (state.currentSub < level.subTopics.length - 1) {
+    state.currentSub++;
+  } else if (state.currentLevel < state.roadmap.length - 1) {
+    // require project completion to unlock next
+    if (!state.projectCompletedLevels[state.currentLevel]) {
+      showLockedToast("Finish the level project to unlock the next level.");
+      return;
+    }
+    state.currentLevel++;
+    state.currentSub = 0;
+  } else {
+    showToast("You've reached the end of the roadmap!");
+    return;
+  }
+  saveState();
+  renderRoadmap();
+  renderCanvas();
+}
+
+function goPrev() {
+  if (state.currentSub > 0) {
+    state.currentSub--;
+  } else if (state.currentLevel > 0) {
+    state.currentLevel--;
+    const prevLevel = state.roadmap[state.currentLevel];
+    state.currentSub = prevLevel.subTopics.length - 1;
+  } else {
+    showToast("You're at the beginning.");
+  }
+  saveState();
+  renderRoadmap();
+  renderCanvas();
+}
+
+/* =========================
+   PROJECT UI
+   ========================= */
+function showProject(level) {
+  const p = level.project;
+  const projectHtml = `
+    <div class="mt-8 bg-gray-900 p-6 rounded-lg border border-gray-800">
+      <h3 class="text-xl font-semibold mb-2">${p.title}</h3>
+      <p class="text-gray-300 mb-4">${p.description}</p>
+      <div class="mb-4">
+        <h4 class="font-semibold text-gray-200 mb-2">Hints</h4>
+        <ul class="list-disc list-inside text-gray-400">
+          ${p.hints.map(h => `<li>${h}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="flex gap-3">
+        <button id="start-project-btn" class="px-4 py-2 bg-indigo-600 rounded-lg">Start Project</button>
+        <button id="mark-project-done" class="px-4 py-2 bg-green-600 rounded-lg">Mark Project Complete</button>
+      </div>
+    </div>
+  `;
+  document.getElementById("project-area").innerHTML = projectHtml;
+  document.getElementById("start-project-btn").addEventListener("click", () => {
+    // open a simple in-page editor or describe steps — for demo we show a small editor
+    openSimpleEditor(level);
+  });
+  document.getElementById("mark-project-done").addEventListener("click", () => {
+    state.projectCompletedLevels[state.currentLevel] = true;
+    saveState();
+    showToast("Project marked complete! You can now unlock the next level.");
+    renderRoadmap();
+    renderCanvas();
+  });
+}
+
+function openSimpleEditor(level) {
+  const p = level.project;
+  const area = document.getElementById("project-area");
+  area.innerHTML = `
+    <div class="mt-8 bg-gray-900 p-4 rounded-lg border border-gray-800">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-semibold">${p.title} — Quick Editor</h4>
+        <div class="text-sm text-gray-400">Temporary in-browser editor</div>
+      </div>
+      <textarea id="quick-code" class="w-full h-40 p-3 bg-gray-800 rounded-md text-sm text-gray-200" placeholder="Write notes, pseudocode, or paste commands you used..."></textarea>
+      <div class="flex gap-3 mt-3">
+        <button id="save-notes" class="px-3 py-2 bg-indigo-600 rounded-lg">Save Notes</button>
+        <button id="close-editor" class="px-3 py-2 bg-gray-700 rounded-lg">Close</button>
+      </div>
+      <div id="save-msg" class="text-sm text-green-400 mt-2 hidden">Saved locally.</div>
+    </div>
+  `;
+  document.getElementById("save-notes").addEventListener("click", () => {
+    const notes = document.getElementById("quick-code").value;
+    const key = `skillforge_notes_${state.topic}_lvl${state.currentLevel}`;
+    localStorage.setItem(key, notes);
+    document.getElementById("save-msg").classList.remove("hidden");
+  });
+  document.getElementById("close-editor").addEventListener("click", () => {
+    renderCanvas();
+  });
+}
+
+/* =========================
+   UI Helpers & small toasts
+   ========================= */
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.innerText = msg;
+  t.className = "fixed right-6 bottom-6 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg";
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function showLockedToast(msg) {
+  const t = document.createElement("div");
+  t.innerText = msg;
+  t.className = "fixed right-6 bottom-6 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg";
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+function escapeHtml(s) {
+  if (!s) return "";
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+}
+
+/* =========================
+   BUTTONS: back / reset
+   ========================= */
+backHomeBtn.addEventListener("click", () => {
+  window.location.href = "index.html";
+});
+
+resetProgressBtn.addEventListener("click", () => {
+  if (!confirm("Reset progress for this topic?")) return;
+  state = {
+    topic: state.topic,
+    roadmap: state.roadmap,
+    currentLevel: 0,
+    currentSub: 0,
+    completed: {},
+    projectCompletedLevels: {}
+  };
+  state.assessed = false;
+  saveState();
+  renderRoadmap();
+  renderAssessment();
+});
+
+/* =========================
+   INITIAL RENDER
+   ========================= */
+if (state.roadmap) {
+  renderRoadmap();
+  // if assessed previously, render canvas otherwise start assessment
+  if (state.assessed) renderCanvas();
+  else renderAssessment();
+}
+</script>
+
+</body>
+</html>
