@@ -1,6 +1,6 @@
 Sk!ll It – AI Learning Roadmap
 
-Live Site: https://sk!llit.vercel.app
+Live Site: https://skillin.vercel.app
 
 Sk!ll It is a lightweight AI-powered learning assistant for CSE domains. Users can select a domain, follow a clear roadmap of topics and subtopics, view dynamic explanations, take quizzes, and apply knowledge through mini-projects — all in a browser without login or database.
 
