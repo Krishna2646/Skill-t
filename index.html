@@ -1,132 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Skill It - AI Skill Coach</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 2.5rem;
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      color: #666;
-      margin-bottom: 20px;
-    }
-    #chatbox {
-      width: 100%;
-      max-width: 600px;
-      height: 400px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      overflow-y: auto;
-      margin-bottom: 15px;
-    }
-    .message {
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    .user {
-      background: #d1e7ff;
-      align-self: flex-end;
-    }
-    .ai {
-      background: #e7f7d9;
-      align-self: flex-start;
-    }
-    #input-area {
-      display: flex;
-      gap: 10px;
-      width: 100%;
-      max-width: 600px;
-    }
-    input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
-    button {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construct</title>
+   
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a better dark theme and prose */
+        body { font-family: sans-serif; }
+        .prose { color: #d1d5db; }
+        .prose h2, .prose h3 { color: #fff; }
+    </style>
 </head>
-<body>
-  <h1>Skill It</h1>
-  <p>Your AI Skill Coach</p>
-  
-  <div id="chatbox"></div>
-  
-  <div id="input-area">
-    <input type="text" id="userInput" placeholder="Ask me anything...">
-    <button onclick="sendMessage()">Send</button>
-  </div>
+<body class="bg-gray-950 text-white min-h-screen">
 
-  <script>
-    const API_KEY = "YOUR_API_KEY_HERE"; // replace with your key
-    const chatbox = document.getElementById("chatbox");
+    <!-- =========== SCREEN 1: The Initial Prompt =========== -->
+    <div id="prompt-screen" class="min-h-screen flex flex-col">
+        <header class="p-4">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <!-- Lucide Puzzle Icon (SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M19.43 12.76a2.5 2.5 0 1 1-3.61 3.61l-4.12 4.12a2.5 2.5 0 1 1-3.54-3.54l4.12-4.12a2.5 2.5 0 1 1 3.61-3.61l4.12-4.12a2.5 2.5 0 1 1 3.54 3.54l-4.12 4.12z"/><path d="m12.11 12.42 2.12-2.12"/><path d="m4.57 4.84 2.12 2.12"/><path d="M19.16 19.43 17.05 17.31"/></svg>
+                Construct
+            </h1>
+        </header>
+        <main class="flex-1 flex items-center justify-center">
+            <div class="text-center w-full max-w-2xl px-4">
+                <h2 class="text-4xl font-semibold mb-6">What skill will you construct today?</h2>
+                <div class="relative">
+                    <input id="prompt-input" type="text" placeholder="e.g., 'JavaScript for Beginners' or 'Data Structures in Python'" class="w-full p-4 pr-12 bg-gray-900 border border-gray-700 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <!-- Lucide ChevronRight Icon (SVG) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-500"><path d="m9 18 6-6-6-6"/></svg>
+                </div>
+            </div>
+        </main>
+    </div>
 
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const text = input.value.trim();
-      if (!text) return;
-      
-      appendMessage(text, "user");
-      input.value = "";
+    <!-- =========== SCREEN 2: The Learning Roadmap =========== -->
+    <div id="learning-screen" class="min-h-screen flex-col hidden">
+        <header class="p-4 border-b border-gray-800 flex justify-between items-center">
+             <h1 class="text-xl font-bold flex items-center gap-2">
+                <!-- Lucide Puzzle Icon (SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M19.43 12.76a2.5 2.5 0 1 1-3.61 3.61l-4.12 4.12a2.5 2.5 0 1 1-3.54-3.54l4.12-4.12a2.5 2.5 0 1 1 3.61-3.61l4.12-4.12a2.5 2.5 0 1 1 3.54 3.54l-4.12 4.12z"/><path d="m12.11 12.42 2.12-2.12"/><path d="m4.57 4.84 2.12 2.12"/><path d="M19.16 19.43 17.05 17.31"/></svg>
+                Construct
+            </h1>
+            <button id="start-over-btn" class="text-sm text-gray-400 hover:text-white">Start Over</button>
+        </header>
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Left Panel: Roadmap -->
+            <aside id="roadmap-panel" class="w-1/3 min-w-[350px] bg-gray-900 p-6 border-r border-gray-800 overflow-y-auto">
+                <!-- Roadmap will be dynamically inserted here -->
+            </aside>
+            <!-- Right Panel: Content -->
+            <main id="content-panel" class="flex-1 p-8 overflow-y-auto">
+                <!-- Content will be dynamically inserted here -->
+            </main>
+        </div>
+    </div>
 
-      // Call AI API
-      try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
+    <!-- =========== SCREEN 3: The Project Workspace =========== -->
+    <div id="project-screen" class="min-h-screen flex-col hidden">
+        <header class="p-4 border-b border-gray-800 flex justify-between items-center flex-shrink-0">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <!-- Lucide Puzzle Icon (SVG) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M19.43 12.76a2.5 2.5 0 1 1-3.61 3.61l-4.12 4.12a2.5 2.5 0 1 1-3.54-3.54l4.12-4.12a2.5 2.5 0 1 1 3.61-3.61l4.12-4.12a2.5 2.5 0 1 1 3.54 3.54l-4.12 4.12z"/><path d="m12.11 12.42 2.12-2.12"/><path d="m4.57 4.84 2.12 2.12"/><path d="M19.16 19.43 17.05 17.31"/></svg>
+                Construct
+            </h1>
+            <div id="project-header" class="text-center">
+                <!-- Project Title will be dynamically inserted here -->
+            </div>
+            <button id="back-to-learning-btn" class="text-sm text-gray-400 hover:text-white">Back to Learning</button>
+        </header>
+        <div class="flex-1 grid grid-cols-2 gap-4 p-4 overflow-hidden">
+            <!-- Left Canvas: AI Assistant -->
+            <div id="ai-assistant-panel" class="bg-gray-900 rounded-lg border border-gray-800 flex flex-col">
+                <!-- AI Assistant content will be dynamically inserted here -->
+            </div>
+            <!-- Right Canvas: Code Workspace -->
+            <div class="bg-gray-900 rounded-lg border border-gray-800 flex flex-col">
+                <div id="workspace-tabs" class="flex border-b border-gray-800">
+                    <!-- Workspace tabs will be dynamically inserted here -->
+                </div>
+                <div id="workspace-content" class="flex-1 p-4">
+                    <!-- Workspace content panels will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================== JAVASCRIPT LOGIC ================== -->
+    <script>
+        // --- MOCK DATA (This simulates an AI response) ---
+        const mockRoadmap = [
+          {
+            id: 'level-1',
+            title: 'Foundations of Web Interactivity',
+            subTopics: [
+              { id: '1.1', title: 'Understanding the DOM', content: 'The Document Object Model (DOM) is a programming interface for web documents. It represents the page so that programs can change the document structure, style, and content. The DOM represents the document as nodes and objects; that way, programming languages can connect to the page.' },
+              { id: '1.2', title: 'Handling User Events', content: 'Events are actions or occurrences that happen in the system you are programming — the system fires a signal of some kind when an event takes place, and provides a mechanism by which an action can be automatically taken (that is, some code running) when the event occurs.' },
+              { id: '1.3', title: 'Manipulating Elements', content: 'You can dynamically change the structure, style, and content of elements using JavaScript. This is the core of creating interactive web pages, from adding simple text to building complex user interfaces.' },
+            ],
+            project: {
+              title: 'Simple To-Do List App',
+              description: 'Build an interactive to-do list where users can add items by typing in an input field and clicking a button. This will test your knowledge of the DOM, events, and element manipulation.',
+              aiHints: ['Start with the basic HTML structure: an `<input>`, a `<button>`, and an empty `<ul>`.', 'Use an `addEventListener` on the button to detect clicks.', 'When the button is clicked, get the value from the `<input>` field.', 'Create a new `<li>` element, set its text content to the input value, and append it to the `<ul>`.'],
+            },
           },
-          body: JSON.stringify({
-            model: "gpt-4o-mini",
-            messages: [{ role: "user", content: text }]
-          })
+          {
+            id: 'level-2',
+            title: 'Working with APIs',
+            subTopics: [
+              { id: '2.1', title: 'What is an API?', content: 'An Application Programming Interface (API) is a way for two or more computer programs to communicate with each other. It is a type of software interface, offering a service to other pieces of software.' },
+              { id: '2.2', title: 'The Fetch API', content: 'The Fetch API provides a simple, logical way to fetch resources asynchronously across the network. It\'s a modern replacement for XMLHttpRequest and makes it easier to make web requests and handle responses.' },
+            ],
+            project: {
+              title: 'Quote of the Day App',
+              description: 'Fetch a random quote from a public API and display it on the page each time a button is clicked.',
+              aiHints: ['Find a free and simple quote API online (like `api.quotable.io`).', 'Use the `fetch()` function to make a GET request to the API\'s endpoint.', 'Parse the JSON response to get the quote content and author.', 'Display the fetched quote in a designated HTML element.'],
+            },
+          },
+        ];
+
+        // --- GLOBAL STATE ---
+        let appState = 'prompt'; // 'prompt', 'learning', 'project'
+        let roadmap = null;
+        let currentLevelIndex = 0;
+        let activeSubTopicId = null;
+        let activeProjectTab = 'code';
+
+        // --- DOM ELEMENT REFERENCES ---
+        const screens = {
+            prompt: document.getElementById('prompt-screen'),
+            learning: document.getElementById('learning-screen'),
+            project: document.getElementById('project-screen'),
+        };
+        const promptInput = document.getElementById('prompt-input');
+        const roadmapPanel = document.getElementById('roadmap-panel');
+        const contentPanel = document.getElementById('content-panel');
+        const startOverBtn = document.getElementById('start-over-btn');
+        const backToLearningBtn = document.getElementById('back-to-learning-btn');
+        const projectHeader = document.getElementById('project-header');
+        const aiAssistantPanel = document.getElementById('ai-assistant-panel');
+        const workspaceTabs = document.getElementById('workspace-tabs');
+        const workspaceContent = document.getElementById('workspace-content');
+
+        // --- RENDER FUNCTIONS ---
+        function switchScreen(screenName) {
+            appState = screenName;
+            Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+            screens[screenName].classList.remove('hidden');
+            screens[screenName].classList.add('flex');
+        }
+
+        function renderRoadmap() {
+            const currentLevel = roadmap[currentLevelIndex];
+            roadmapPanel.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Your Roadmap</h2>
+                <div class="space-y-6">
+                    ${roadmap.map((level, index) => `
+                        <div>
+                            <h3 class="text-lg font-semibold flex items-center gap-2 ${index > currentLevelIndex ? 'text-gray-600' : 'text-indigo-400'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.93 2.55a2 2 0 0 0-1.07 3.9l-1.03.26a2 2 0 0 1-2.4-2.4l.26-1.03a2 2 0 0 0 3.9-1.07z"/><path d="M13 10.34A6.14 6.14 0 0 0 10.34 13"/><path d="M12.22 18.22a2 2 0 0 0 3.9 1.07l.26-1.03a2 2 0 0 1-2.4-2.4l-1.03.26a2 2 0 0 0-1.07 3.9z"/><path d="m18.22 12.22 1.03-.26a2 2 0 0 0-3.9-1.07l-3.9 1.07a2 2 0 0 1 2.4 2.4l1.03-.26z"/><path d="m5.8 5.8 1.07 3.9 3.9 1.07 3.9-1.07 1.07-3.9-1.07-3.9-3.9-1.07-3.9 1.07-1.07 3.9z"/></svg>
+                                Level ${index + 1}: ${level.title}
+                            </h3>
+                            <ul class="mt-2 pl-4 border-l-2 border-gray-700 space-y-1">
+                                ${level.subTopics.map(sub => `
+                                    <li>
+                                        <button data-subtopic-id="${sub.id}" class="subtopic-btn w-full text-left p-2 rounded-md ${activeSubTopicId === sub.id ? 'bg-indigo-500/10 text-indigo-300' : 'text-gray-400 hover:bg-gray-800'}">
+                                            ${sub.title}
+                                        </button>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            // Re-add event listeners for the new buttons
+            document.querySelectorAll('.subtopic-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const subId = btn.getAttribute('data-subtopic-id');
+                    setActiveSubTopic(subId);
+                });
+            });
+        }
+        
+        function renderContent() {
+            const currentLevel = roadmap[currentLevelIndex];
+            const activeSubTopic = currentLevel.subTopics.find(s => s.id === activeSubTopicId);
+            contentPanel.innerHTML = `
+                <h2 class="text-3xl font-bold mb-4">${activeSubTopic.title}</h2>
+                <div class="prose prose-invert max-w-none text-gray-300 leading-7">${activeSubTopic.content}</div>
+                <button id="start-project-btn" class="mt-8 bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-500">
+                    Start Project for Level ${currentLevelIndex + 1}
+                </button>
+            `;
+            // Re-add event listener
+            document.getElementById('start-project-btn').addEventListener('click', handleStartProject);
+        }
+
+        function renderProjectScreen() {
+            const currentLevel = roadmap[currentLevelIndex];
+            const project = currentLevel.project;
+            
+            projectHeader.innerHTML = `
+                <h2 class="font-semibold">${project.title}</h2>
+                <p class="text-sm text-gray-400">Level ${currentLevelIndex + 1} Project</p>
+            `;
+
+            aiAssistantPanel.innerHTML = `
+                <h2 class="text-lg font-semibold p-4 border-b border-gray-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                    AI Assistant
+                </h2>
+                <div class="p-4 space-y-4 overflow-y-auto">
+                    <p class="font-semibold text-gray-300">${project.description}</p>
+                    <div>
+                        <h3 class="text-indigo-400 font-semibold mb-2">Hints:</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-400">
+                            ${project.aiHints.map(hint => `<li>${hint}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            renderWorkspace();
+        }
+
+        function renderWorkspace() {
+            const tabs = ['code', 'output', 'errors'];
+            workspaceTabs.innerHTML = tabs.map(tab => `
+                <button data-tab="${tab}" class="workspace-tab-btn px-4 py-2 font-semibold flex items-center gap-2 ${activeProjectTab === tab ? 'bg-gray-800 text-indigo-300' : 'text-gray-500 hover:bg-gray-800/50'}">
+                    ${tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+            `).join('');
+
+            workspaceContent.innerHTML = tabs.map(tab => `
+                <div id="workspace-${tab}" class="${activeProjectTab === tab ? '' : 'hidden'} text-gray-600 h-full flex items-center justify-center">
+                    ${
+                        tab === 'code' ? 'A live code editor (Canvas) would be here.' : 
+                        tab === 'output' ? 'The project output would render here.' :
+                        'Code errors and console logs would appear here.'
+                    }
+                </div>
+            `).join('');
+            
+            // Re-add event listeners
+            document.querySelectorAll('.workspace-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeProjectTab = btn.getAttribute('data-tab');
+                    renderWorkspace(); // Re-render the workspace to show the active tab
+                });
+            });
+        }
+
+
+        // --- EVENT HANDLERS & LOGIC ---
+        function setActiveSubTopic(subId) {
+            activeSubTopicId = subId;
+            renderRoadmap(); // Re-render to highlight the active button
+            renderContent();
+        }
+
+        function handleStartJourney(userInput) {
+            if (!userInput.trim()) return;
+            // In a real app, you would fetch this from an AI.
+            roadmap = mockRoadmap; 
+            currentLevelIndex = 0;
+            activeSubTopicId = roadmap[0].subTopics[0].id;
+            
+            renderRoadmap();
+            renderContent();
+            switchScreen('learning');
+        }
+
+        function handleStartProject() {
+            renderProjectScreen();
+            switchScreen('project');
+        }
+        
+        function handleStartOver() {
+            promptInput.value = '';
+            switchScreen('prompt');
+        }
+
+        // --- INITIALIZE ---
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handleStartJourney(e.target.value);
+            }
         });
+        startOverBtn.addEventListener('click', handleStartOver);
+        backToLearningBtn.addEventListener('click', () => switchScreen('learning'));
 
-        const data = await response.json();
-        const reply = data.choices[0].message.content;
-        appendMessage(reply, "ai");
-      } catch (error) {
-        appendMessage("Error connecting to AI.", "ai");
-        console.error(error);
-      }
-    }
+        // Start on the prompt screen
+        switchScreen('prompt');
 
-    function appendMessage(message, type) {
-      const div = document.createElement("div");
-      div.className = "message " + type;
-      div.innerText = message;
-      chatbox.appendChild(div);
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
-  </script>
+    </script>
 </body>
 </html>
