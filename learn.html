@@ -69,7 +69,7 @@
   // Fetch roadmap JSON
   async function loadRoadmap() {
     try {
-      const response = await fetch('roadmaps/machine%20learning.json');
+      const response = await fetch('.roadmaps/machine%20learning.json');
       roadmap = await response.json();
       renderRoadmap();
       loadAIContent();
