@@ -1,103 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skill-It | Learn Smarter</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill It - AI Skill Coach</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
     body {
-      background: #f9f9f9;
-      color: #333;
-      line-height: 1.6;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    header {
-      width: 100%;
-      background: #4f46e5;
-      color: white;
+      justify-content: flex-start;
+      height: 100vh;
+      margin: 0;
       padding: 20px;
-      text-align: center;
     }
-
-    header h1 {
-      font-size: 2rem;
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 0.5rem;
     }
-
-    section {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px;
-      text-align: center;
-    }
-
-    section h2 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      color: #4f46e5;
-    }
-
     p {
+      color: #666;
       margin-bottom: 20px;
     }
-
-    .btn {
-      display: inline-block;
-      background: #4f46e5;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-
-    .btn:hover {
-      background: #3730a3;
-    }
-
-    footer {
+    #chatbox {
       width: 100%;
-      background: #eee;
-      padding: 20px;
-      text-align: center;
-      font-size: 0.9rem;
-      margin-top: 40px;
+      max-width: 600px;
+      height: 400px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .message {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .user {
+      background: #d1e7ff;
+      align-self: flex-end;
+    }
+    .ai {
+      background: #e7f7d9;
+      align-self: flex-start;
+    }
+    #input-area {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 600px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Skill-It 🚀</h1>
-    <p>Your personal guide to learning skills, faster and smarter.</p>
-  </header>
+  <h1>Skill It</h1>
+  <p>Your AI Skill Coach</p>
+  
+  <div id="chatbox"></div>
+  
+  <div id="input-area">
+    <input type="text" id="userInput" placeholder="Ask me anything...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
-  <section>
-    <h2>Why Skill-It?</h2>
-    <p>
-      Finding reliable sources for learning tech skills is tough.  
-      Skill-It gives you curated roadmaps, free tools, and powerful AI help in one place.
-    </p>
-    <a href="#" class="btn">Start Learning</a>
-  </section>
+  <script>
+    const API_KEY = "YOUR_API_KEY_HERE"; // replace with your key
+    const chatbox = document.getElementById("chatbox");
 
-  <section>
-    <h2>Features</h2>
-    <p>📚 Curated Learning Roadmaps</p>
-    <p>⚡ Free & Powerful Tools (APIs, Editors)</p>
-    <p>🤖 AI-Powered Q&A and Guidance</p>
-  </section>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const text = input.value.trim();
+      if (!text) return;
+      
+      appendMessage(text, "user");
+      input.value = "";
 
-  <footer>
-    <p>Built with ❤️ by Krishna2646 and contributors.</p>
-  </footer>
+      // Call AI API
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: text }]
+          })
+        });
+
+        const data = await response.json();
+        const reply = data.choices[0].message.content;
+        appendMessage(reply, "ai");
+      } catch (error) {
+        appendMessage("Error connecting to AI.", "ai");
+        console.error(error);
+      }
+    }
+
+    function appendMessage(message, type) {
+      const div = document.createElement("div");
+      div.className = "message " + type;
+      div.innerText = message;
+      chatbox.appendChild(div);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+  </script>
 </body>
 </html>
