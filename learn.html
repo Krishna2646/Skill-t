@@ -55,20 +55,55 @@
     Built with ❤️ by Krishna2646 | SkillForge (MVP)
   </footer>
 
-  <script>
-let roadmapData = null;
-let currentTopicIndex = 0;
-fetch("/roadmaps/machine-learning.json")
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById("roadmap").innerText = JSON.stringify(data, null, 2);
-  })
-  .catch(err => {
-    document.getElementById("roadmap").innerText = "❌ Failed to load roadmap.";
-    console.error(err);
-  });
+ <script>
+async function loadRoadmap() {
+  try {
+    const response = await fetch("/roadmaps/machine-learning.json"); // ✅ ensure file is in public/roadmaps/
+    if (!response.ok) throw new Error("Network response was not ok");
 
+    roadmapData = await response.json();
+
+    // Render roadmap into the container
+    renderRoadmap(roadmapData);
+  } catch (error) {
+    document.getElementById("roadmap-container").innerHTML =
+      "<p class='text-red-500'>❌ Failed to load roadmap. Please try again later.</p>";
+    console.error("Error loading roadmap:", error);
+  }
+}
+
+function renderRoadmap(data) {
+  const container = document.getElementById("roadmap-container");
+  container.innerHTML = ""; // Clear old roadmap if any
+
+  if (!data || !data.topics) {
+    container.innerHTML = "<p class='text-gray-400'>No roadmap data available.</p>";
+    return;
+  }
+
+  data.topics.forEach((topic, index) => {
+    const div = document.createElement("div");
+    div.className =
+      "roadmap-item " + (index === currentTopicIndex ? "current" : "pending");
+    div.innerText = topic.title;
+
+    container.appendChild(div);
+
+    if (topic.subtopics) {
+      topic.subtopics.forEach((sub) => {
+        const subDiv = document.createElement("div");
+        subDiv.className = "roadmap-item subtopic pending";
+        subDiv.innerText = "↳ " + sub;
+        container.appendChild(subDiv);
+      });
+    }
+  });
+}
+
+// Kick it off
+loadRoadmap();
 </script>
+
 
 
 </body>
