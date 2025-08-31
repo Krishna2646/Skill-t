@@ -3,115 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkillForge</title> <!-- 🔹 New catchy title -->
+  <title>Skill-It</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: sans-serif; }
     .loader {
-      border: 4px solid #4a5568;
-      border-top: 4px solid #6366f1;
+      border: 4px solid #ccc;
+      border-top: 4px solid #f97316; /* orange */
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       animation: spin 1s linear infinite;
+      margin: auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    .process-block {
+      min-width: 200px;
+      padding: 16px;
+      margin: 8px;
+      border-radius: 12px;
+      background-color: #374151; /* grey */
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen flex flex-col">
 
-  <!-- HEADER -->
-  <header class="p-4">
-    <h1 class="text-xl font-bold flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-        viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-        class="text-indigo-400">
-        <path d="M19.43 12.76a2.5 2.5 0 1 1-3.61 3.61l-4.12 4.12a2.5 2.5 0 1 1-3.54-3.54l4.12-4.12a2.5 2.5 0 1 1 3.61-3.61l4.12-4.12a2.5 2.5 0 1 1 3.54 3.54l-4.12 4.12z"/>
-      </svg>
-      SkillForge
-    </h1>
+  <!-- HEADER / TITLE -->
+  <header class="p-8 text-center">
+    <h1 class="text-4xl font-bold text-orange-500 mb-2">Skill-It</h1>
+    <p class="text-gray-400 text-lg">Your AI-Powered Learning Companion</p>
   </header>
 
-  <!-- MAIN -->
+  <!-- CENTER CHATBOX -->
   <main class="flex-1 flex flex-col items-center justify-center px-4">
-    <div class="text-center mb-8">
-      <h2 class="text-5xl font-bold">Forge Your Next Skill</h2>
-      <p class="text-lg text-gray-400 mt-2">Type any topic and get a step-by-step roadmap.</p>
-    </div>
-
-    <!-- Input -->
-    <div class="relative mt-4 flex items-center bg-gray-900 border border-gray-700 rounded-xl p-2 shadow-lg w-full max-w-2xl">
-      <input id="prompt-input" type="text" placeholder="e.g. Learn Data Structures" class="w-full p-3 bg-transparent text-lg focus:outline-none">
-      <button id="send-btn" class="bg-indigo-600 p-2 rounded-lg hover:bg-indigo-500 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-          class="text-white">
-          <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
+    <div class="relative w-full max-w-xl">
+      <input id="topic-input" type="text" placeholder="Ask me about any topic..." 
+        class="w-full p-4 rounded-xl bg-gray-800 text-white text-lg focus:outline-none">
+      <button id="submit-btn" 
+        class="absolute top-2 right-2 bg-orange-500 p-2 rounded-full hover:bg-orange-400 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-6-6m6 6l-6 6"/>
         </svg>
       </button>
     </div>
-
-    <!-- Loader -->
-    <div id="loading-indicator" class="hidden text-center mt-6">
-      <div class="loader mx-auto"></div>
-      <p class="mt-4 text-gray-400">Building your roadmap...</p>
-    </div>
-
-    <!-- "How it works" -->
-    <div class="mt-16 text-center max-w-4xl">
-      <h3 class="text-lg font-semibold text-gray-400 mb-4">How It Works</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-gray-900 p-4 rounded-lg border border-gray-800">
-          <h4 class="font-bold text-indigo-400">1. Generate Roadmap</h4>
-          <p class="text-gray-400 text-sm">Type any skill, and get a full roadmap instantly.</p>
-        </div>
-        <div class="bg-gray-900 p-4 rounded-lg border border-gray-800">
-          <h4 class="font-bold text-indigo-400">2. Learn by Levels</h4>
-          <p class="text-gray-400 text-sm">Move step by step with AI-powered guidance.</p>
-        </div>
-        <div class="bg-gray-900 p-4 rounded-lg border border-gray-800">
-          <h4 class="font-bold text-indigo-400">3. Build Projects</h4>
-          <p class="text-gray-400 text-sm">Apply your knowledge with hands-on coding.</p>
-        </div>
-      </div>
+    <div id="loading" class="mt-6 hidden text-center">
+      <div class="loader"></div>
+      <p class="mt-2 text-gray-400">Generating your roadmap...</p>
     </div>
   </main>
 
+  <!-- PROCESS BLOCKS -->
+  <section class="mt-12 mb-12 overflow-x-auto px-4">
+    <div class="flex gap-4">
+      <div class="process-block">
+        <h3 class="text-xl font-bold mb-2">Ask</h3>
+        <p>Type your topic and get a personalized roadmap</p>
+      </div>
+      <div class="process-block">
+        <h3 class="text-xl font-bold mb-2">Learn</h3>
+        <p>Step-by-step guidance tailored for your level</p>
+      </div>
+      <div class="process-block">
+        <h3 class="text-xl font-bold mb-2">Build</h3>
+        <p>Apply knowledge through projects and hands-on practice</p>
+      </div>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="p-4 text-center text-gray-500 text-sm border-t border-gray-800">
-    Built with ❤️ by Krishna2646 | SkillForge (MVP)
+    Built with ❤️ by Krishna2646 | Skill-It MVP
   </footer>
 
- <script>
-  const sendBtn = document.getElementById('send-btn');
-  const promptInput = document.getElementById('prompt-input');
-  const loadingIndicator = document.getElementById('loading-indicator');
+  <!-- SCRIPT -->
+  <script>
+    const input = document.getElementById('topic-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const loading = document.getElementById('loading');
 
-  function handleRedirect() {
-    const topic = promptInput.value.trim();
-    if (!topic) return;
+    submitBtn.addEventListener('click', () => {
+      const topic = input.value.trim();
+      if(!topic) return;
+      loading.classList.remove('hidden');
+      // For now, just simulate redirect after 1s (to be replaced with learn.html AI core)
+      setTimeout(() => {
+        // Replace with actual page / AI logic later
+        alert(`You entered: ${topic}`);
+        loading.classList.add('hidden');
+      }, 1000);
+    });
 
-    loadingIndicator.classList.remove('hidden');
-
-    // Save to localStorage so learn.html can use it
-    localStorage.setItem("skillTopic", topic);
-
-    // ✅ Use absolute path so it works on Vercel
-    setTimeout(() => {
-      window.location.href = "/learn.html";
-    }, 800); // small delay for loader effect
-  }
-
-  sendBtn.addEventListener('click', handleRedirect);
-  promptInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleRedirect();
-  });
-</script>
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter') submitBtn.click();
+    });
+  </script>
 
 </body>
 </html>
