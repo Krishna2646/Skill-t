@@ -55,82 +55,63 @@
     Built with ❤️ by Krishna2646 | SkillForge (MVP)
   </footer>
 
-  <!-- SCRIPT -->
-<script>
-  let roadmap = [];
-  let currentTopicIndex = 0;
-  let currentSubtopicIndex = 0;
+  <script>
+let roadmapData = null;
+let currentTopicIndex = 0;
 
-  const roadmapContainer = document.getElementById('roadmap-container');
-  const aiContent = document.getElementById('ai-content');
-  const userAnswer = document.getElementById('user-answer');
-  const submitAnswer = document.getElementById('submit-answer');
-
-  // Fetch roadmap JSON
-  async function loadRoadmap() {
+// Load roadmap JSON
+async function loadRoadmap() {
     try {
-      const response = await fetch('.roadmaps/machine%20learning.json');
-      roadmap = await response.json();
-      renderRoadmap();
-      loadAIContent();
+        const res = await fetch("roadmaps/machine_learning.json"); // ✅ use underscore in filename
+        roadmapData = await res.json();
+
+        if (roadmapData && roadmapData.topics) {
+            showTopic();
+        } else {
+            document.getElementById("roadmap-container").innerHTML =
+                "<p>⚠️ No topics found in roadmap.</p>";
+        }
     } catch (err) {
-      console.error("Failed to load roadmap:", err);
-      aiContent.innerHTML = `<p class="text-red-500">Failed to load roadmap. Please try again later.</p>`;
+        console.error("Error loading roadmap:", err);
+        document.getElementById("roadmap-container").innerHTML =
+            "<p>❌ Failed to load roadmap. Please try again later.</p>";
     }
-  }
+}
 
-  function renderRoadmap() {
-    roadmapContainer.innerHTML = '';
-    roadmap.forEach((topic, tIndex) => {
-      const topicEl = document.createElement('div');
-      topicEl.textContent = topic.topic;
-      topicEl.classList.add('roadmap-item');
-      if (tIndex < currentTopicIndex) topicEl.classList.add('completed');
-      else if (tIndex === currentTopicIndex) topicEl.classList.add('current');
-      else topicEl.classList.add('pending');
-      roadmapContainer.appendChild(topicEl);
+// Show current topic
+function showTopic() {
+    if (!roadmapData || currentTopicIndex >= roadmapData.topics.length) {
+        document.getElementById("roadmap-container").innerHTML =
+            "<p>🎉 You’ve completed the roadmap!</p>";
+        return;
+    }
 
-      topic.subtopics.forEach((sub, sIndex) => {
-        const subEl = document.createElement('div');
-        subEl.textContent = sub;
-        subEl.classList.add('roadmap-item', 'subtopic');
-        if (tIndex < currentTopicIndex || (tIndex === currentTopicIndex && sIndex < currentSubtopicIndex)) subEl.classList.add('completed');
-        else if (tIndex === currentTopicIndex && sIndex === currentSubtopicIndex) subEl.classList.add('current');
-        else subEl.classList.add('pending');
-        roadmapContainer.appendChild(subEl);
-      });
-    });
-  }
-
-  function loadAIContent() {
-    if (!roadmap.length) return;
-
-    aiContent.innerHTML = `
-      <p class="text-lg">Answer the following question to assess your current level in <strong>${roadmap[currentTopicIndex].topic} - ${roadmap[currentTopicIndex].subtopics[currentSubtopicIndex]}</strong>:</p>
-      <p class="mt-4 text-gray-400">[AI-generated question here]</p>
+    const topic = roadmapData.topics[currentTopicIndex];
+    document.getElementById("roadmap-container").innerHTML = `
+        <h2>${topic.title}</h2>
+        <p>${topic.description || ""}</p>
+        <p><b>Difficulty:</b> ${topic.level || "Beginner"}</p>
+        <p><b>Example Question:</b> ${topic.question || "What do you understand about this?"}</p>
     `;
-  }
+}
 
-  submitAnswer.addEventListener('click', () => {
-    const answer = userAnswer.value.trim();
+// Handle user answer
+function handleAnswer() {
+    const answer = document.getElementById("user-answer").value.trim();
     if (!answer) return;
 
-    userAnswer.value = '';
+    // Store/assess answer (basic logic for now)
+    console.log("User answer:", answer);
 
-    if (currentSubtopicIndex < roadmap[currentTopicIndex].subtopics.length - 1) {
-      currentSubtopicIndex++;
-    } else if (currentTopicIndex < roadmap.length - 1) {
-      currentTopicIndex++;
-      currentSubtopicIndex = 0;
-    }
+    // Move to next topic
+    currentTopicIndex++;
+    document.getElementById("user-answer").value = "";
+    showTopic();
+}
 
-    renderRoadmap();
-    loadAIContent();
-  });
-
-  // Load roadmap on page start
-  loadRoadmap();
+document.addEventListener("DOMContentLoaded", loadRoadmap);
 </script>
+
 
 </body>
 </html>
