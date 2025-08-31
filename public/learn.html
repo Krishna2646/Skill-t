@@ -79,16 +79,14 @@ function showPopup(message, duration=3000){
 
 // Load roadmap
 fetch('/roadmaps/machine-learning.json')
-.then(res=>res.json())
-.then(data=>{
-  roadmap = data.topics; // assume JSON has { "topics": [...] }
-  renderRoadmap();
-  askNextQuestion();
-})
-.catch(err=>{
-  roadmapContainer.innerHTML = '❌ Failed to load roadmap. Please try again later.';
-  console.error(err);
-});
+  .then(res => {
+    console.log('Response status:', res.status);
+    return res.json();
+  })
+  .then(data => console.log(data))
+  .catch(err => console.error('Error fetching JSON:', err));
+
+  
 
 // Render roadmap left panel
 function renderRoadmap(){
