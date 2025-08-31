@@ -87,31 +87,31 @@
     Built with ❤️ by Krishna2646 | SkillForge (MVP)
   </footer>
 
-  <!-- SCRIPT -->
-  <script>
-    const sendBtn = document.getElementById('send-btn');
-    const promptInput = document.getElementById('prompt-input');
-    const loadingIndicator = document.getElementById('loading-indicator');
+ <script>
+  const sendBtn = document.getElementById('send-btn');
+  const promptInput = document.getElementById('prompt-input');
+  const loadingIndicator = document.getElementById('loading-indicator');
 
-    function handleRedirect() {
-      const topic = promptInput.value.trim();
-      if (!topic) return;
+  function handleRedirect() {
+    const topic = promptInput.value.trim();
+    if (!topic) return;
 
-      loadingIndicator.classList.remove('hidden');
-      
-      // Save to localStorage so learn.html can use it
-      localStorage.setItem("skillTopic", topic);
+    loadingIndicator.classList.remove('hidden');
 
-      // Redirect
-      setTimeout(() => {
-        window.location.href = "learn.html";
-      }, 800); // small delay for loader effect
-    }
+    // Save to localStorage so learn.html can use it
+    localStorage.setItem("skillTopic", topic);
 
-    sendBtn.addEventListener('click', handleRedirect);
-    promptInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') handleRedirect();
-    });
-  </script>
+    // ✅ Use absolute path so it works on Vercel
+    setTimeout(() => {
+      window.location.href = "/learn.html";
+    }, 800); // small delay for loader effect
+  }
+
+  sendBtn.addEventListener('click', handleRedirect);
+  promptInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleRedirect();
+  });
+</script>
+
 </body>
 </html>
