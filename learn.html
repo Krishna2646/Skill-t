@@ -58,58 +58,16 @@
   <script>
 let roadmapData = null;
 let currentTopicIndex = 0;
+fetch("/roadmaps/machine-learning.json")
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("roadmap").innerText = JSON.stringify(data, null, 2);
+  })
+  .catch(err => {
+    document.getElementById("roadmap").innerText = "❌ Failed to load roadmap.";
+    console.error(err);
+  });
 
-// Load roadmap JSON
-async function loadRoadmap() {
-    try {
-        const res = await fetch("roadmaps/machine_learning.json"); // ✅ use underscore in filename
-        roadmapData = await res.json();
-
-        if (roadmapData && roadmapData.topics) {
-            showTopic();
-        } else {
-            document.getElementById("roadmap-container").innerHTML =
-                "<p>⚠️ No topics found in roadmap.</p>";
-        }
-    } catch (err) {
-        console.error("Error loading roadmap:", err);
-        document.getElementById("roadmap-container").innerHTML =
-            "<p>❌ Failed to load roadmap. Please try again later.</p>";
-    }
-}
-
-// Show current topic
-function showTopic() {
-    if (!roadmapData || currentTopicIndex >= roadmapData.topics.length) {
-        document.getElementById("roadmap-container").innerHTML =
-            "<p>🎉 You’ve completed the roadmap!</p>";
-        return;
-    }
-
-    const topic = roadmapData.topics[currentTopicIndex];
-    document.getElementById("roadmap-container").innerHTML = `
-        <h2>${topic.title}</h2>
-        <p>${topic.description || ""}</p>
-        <p><b>Difficulty:</b> ${topic.level || "Beginner"}</p>
-        <p><b>Example Question:</b> ${topic.question || "What do you understand about this?"}</p>
-    `;
-}
-
-// Handle user answer
-function handleAnswer() {
-    const answer = document.getElementById("user-answer").value.trim();
-    if (!answer) return;
-
-    // Store/assess answer (basic logic for now)
-    console.log("User answer:", answer);
-
-    // Move to next topic
-    currentTopicIndex++;
-    document.getElementById("user-answer").value = "";
-    showTopic();
-}
-
-document.addEventListener("DOMContentLoaded", loadRoadmap);
 </script>
 
 
